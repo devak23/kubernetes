@@ -1,0 +1,5 @@
+alias k='kubectl'
+alias kg='kubectl get'
+alias kdes='kubectl describe'
+alias kc='kubectl create'
+alias kdel='kubectl delete'
