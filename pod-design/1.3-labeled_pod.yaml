@@ -1,0 +1,21 @@
+# this is a pod definition with labels you can invoke the kubectl get pods with "--show-labels" flag
+# to display the label with the pod. Executing the following script shows this:
+#
+# NAME    READY   STATUS    RESTARTS   AGE   LABELS
+# mypod   1/1     Running   0          6s    env=development,tier=fontend
+#
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  labels:
+    env: development
+    tier: fontend
+spec:
+  containers:
+    - name: mycontainer
+      image: nginx:latest
+      ports:
+        - containerPort: 80
