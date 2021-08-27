@@ -1,0 +1,7 @@
+# you can set the default namespace to 'rnd' by the following command
+# kubectl config set-context $(kubectl config current-context) --namespace=rnd
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rnd
