@@ -56,11 +56,16 @@ spec:
 
 ###################################################################################################
 # Commands to try:
-# 1. kubectl get pods -L color,tier  -> the -L or --label-columns displays columns for both labels
-# 2. kubectl get pods -L color,tier -l color -> selects all the pods with a color label
-# 3. kubectl get pods -L color,tier -l 'color=red' -> selects all the pods with color = red
-# 4. kubectl get pods -L color,tier -l 'color=red,tier!=frontend' -> self explanatory
-# 5. kubectl get pods -L color,tier -l 'color in (blue,green)' -> self explanatory
-# 6. kubectl get pods -L color,tier -l '!color' -> selects all pods that do not have a color label.
-# 7. kubectl describe pod red-backend | grep Annotations
+# 01. kubectl get pods -L color,tier  -> the -L or --label-columns displays columns for both labels
+# 02. kubectl get pods -L color,tier -l color -> selects all the pods with a color label
+# 03. kubectl get pods -L color,tier -l 'color=red' -> selects all the pods with color = red
+# 04. kubectl get pods -L color,tier -l 'color=red,tier!=frontend' -> self explanatory
+# 05. kubectl get pods -L color,tier -l 'color in (blue,green)' -> self explanatory
+# 06. kubectl get pods -L color,tier -l '!color' -> selects all pods that do not have a color label.
+# 07. kubectl describe pod red-backend | grep -C 2 Labels -> displays the labels for this pod.
+# 08. kubectl get pods --show-labels -> will display the pods along with labels
+# 09. kubectl label pod red-frontend region=APAC -> adds a new label
+# 10. kubectl label pod red-frontend region=US --overwrite -> will update the label on the pod
+# 11. kubectl label pod red-frontend region- -> will remove the label on the pod
+# 08. kubectl describe pod red-backend | grep Annotations
 ###################################################################################################
