@@ -2,7 +2,7 @@
 # to display the label with the pod. Executing the following script shows this:
 #
 # NAME    READY   STATUS    RESTARTS   AGE   LABELS
-# mypod   1/1     Running   0          6s    env=development,tier=fontend
+# mypod   1/1     Running   0          6s    env=development,tier=frontend
 #
 
 
@@ -12,7 +12,7 @@ metadata:
   name: mypod
   labels:
     env: development
-    tier: fontend
+    tier: frontend
 spec:
   containers:
     - name: mycontainer
