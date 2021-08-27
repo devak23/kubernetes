@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: red-frontend
-  namespace: rnd # declare namespace in metadata
+  namespace: rnd    # declare namespace in metadata
   labels:           # labels mapping in metadata
     color: red
     tier: frontend
@@ -54,3 +54,13 @@ spec:
     - image: postgres:11.2-alpine
       name: db
 
+###################################################################################################
+# Commands to try:
+# 1. kubectl get pods -L color,tier  -> the -L or --label-columns displays columns for both labels
+# 2. kubectl get pods -L color,tier -l color -> selects all the pods with a color label
+# 3. kubectl get pods -L color,tier -l 'color=red' -> selects all the pods with color = red
+# 4. kubectl get pods -L color,tier -l 'color=red,tier!=frontend' -> self explanatory
+# 5. kubectl get pods -L color,tier -l 'color in (blue,green)' -> self explanatory
+# 6. kubectl get pods -L color,tier -l '!color' -> selects all pods that do not have a color label.
+# 7. kubectl describe pod red-backend | grep Annotations
+###################################################################################################
