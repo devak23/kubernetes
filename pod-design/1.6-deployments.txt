@@ -1,0 +1,129 @@
+% kubectl create deployment web-server --image=httpd:2.4.38 --dry-run -o yaml
+
+-> won't actually create the deployment but will rather spit out a yaml file for us to tweak. It spits out
+the following:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: web-server
+  name: web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-server
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: web-server
+    spec:
+      containers:
+      - image: httpd:2.4.38
+        name: httpd
+        resources: {}
+status: {}
+
+If you look closely, you will see label selection in action. The selector spec.selector.matchLabels
+matches on the key-value pair app=web-server with the label defined under the template section as well.
+The matchLabels mapping defines an equality condition similar to how you would write app=web-server using
+kubectl. For more information about the Deployment selector issue kubectl explain deployment.spec.selector.
+
+"template:" is a template for the Pods that will be created. The template provides the desired behavior of
+each Pod and is essentially the same as an individual Pod manifest. Notice the label that the Deployment
+selector uses is applied to the Pod (app: web-server). This is required for the Deployment to track its
+Pods. So lets go ahead and create a deployment:
+
+% kubectl create deployment web-server image:httpd:2.4.38
+
+% kubectl get all -> should show you everything that's running so far. For me,it spits the following:
+
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/blue-backend                  1/1     Running   4          30h
+pod/green-frontend                1/1     Running   4          30h
+pod/red-backend                   1/1     Running   4          30h
+pod/red-frontend                  1/1     Running   4          30h
+pod/web-server-7cdb48df69-4g5h5   1/1     Running   0          5s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/web-server   1/1     1            1           5s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/web-server-7cdb48df69   1         1         1       5s
+
+You can inspect the details of a Deployment using the describe command. Not only does the output provide information on
+the number and availability of replicas, it also presents you with the reference to the ReplicaSet. Inspecting the
+ReplicaSet or the replicated Pods renders references to the parent object managing it:
+
+% kubectl describe deployment.apps/web-server
+
+% kubectl describe replicaset.apps/web-server-7cdb48df69
+
+You can scale up the number of replicas by simply using the scale command:
+
+% kubectl scale deployment web-server --replicas=6
+
+
+% kubectl get all
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/blue-backend                  1/1     Running   5          30h
+pod/green-frontend                1/1     Running   5          30h
+pod/red-backend                   1/1     Running   5          30h
+pod/red-frontend                  1/1     Running   5          30h
+pod/web-server-7cdb48df69-4g5h5   1/1     Running   1          22m
+pod/web-server-7cdb48df69-7mwqb   1/1     Running   0          4s
+pod/web-server-7cdb48df69-jfnnt   1/1     Running   0          4s
+pod/web-server-7cdb48df69-lmgl8   1/1     Running   0          4s
+pod/web-server-7cdb48df69-qkcrm   1/1     Running   0          4s
+pod/web-server-7cdb48df69-zm9bd   1/1     Running   0          4s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/web-server   6/6     6            6           22m
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/web-server-7cdb48df69   6         6         6       22m
+
+
+Every Deployment keeps a record of the rollout history. Within the history, a new version of a rollout is called a
+revision. Before experiencing the rollout of a new revision in practice, let’s inspect the initial state of the
+Deployment named web-server. The rollout command shows revision 1, which represents the creation of the Deployment with
+ all its settings:
+
+% kubectl rollout history deployment web-server
+
+To update the container image either edit the live object or run a set image command. Lets do edit first.
+% kubectl edit deployment web-server --record
+
+Check the rollout status of the deployment:
+% kubectl rollout status deployment web-server
+
+Next, lets update the image using set image command
+% kubectl set image deployment web-server httpd=httpd:2.4.38-alpine
+
+% kubectl describe deployments web-server
+
+% kubectl rollout undo deployment web-server
+
+Deployment can be autoscaled using the autoscale deployment command.
+
+% kubectl autoscale deployment web-server --cpu-percent=70 --min=2 --max=8
+
+√ ~/Workspace/kubernetes % kubectl get hpa
+NAME         REFERENCE               TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+web-server   Deployment/web-server   <unknown>/70%   2         8         2          52s
+
+The current status of the HPA shows the upper CPU threshold limit but renders <unknown> for the current CPU consumption.
+That’s usually the case if the metrics server is not running, is misconfigured, or if the Pod template of the Deployment
+doesn’t define any resource requirements. Check the events of the HPA using the command kubectl describe hpa my-deploy.
+
+% kubectl describe hpa web-server
+
+  Type     Reason                        Age                   From                       Message
+  ----     ------                        ----                  ----                       -------
+  Warning  FailedGetResourceMetric       15s (x10 over 2m30s)  horizontal-pod-autoscaler  failed to get cpu utilization:
+  unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server could not find
+  the requested resource (get pods.metrics.k8s.io)

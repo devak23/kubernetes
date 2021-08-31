@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Job
+metadata:
+  name: counter
+spec:
+  template:
+    spec:
+      containers:
+      - name: counter
+        image: nginx
+        command:
+        - /bin/sh
+        - -c
+        - counter=0; while [ $counter -lt 3 ]; do counter=$((counter+1)); \
+          echo "$counter"; sleep 3; done;
+      restartPolicy: Never
+
+# The default behavior of a Job is to run the workload in a single Pod and expect one successful completion. That’s
+# what Kubernetes calls a non-parallel Job. Internally, those parameters are tracked by the attributes
+# spec.template.spec.completions and spec.template.spec.parallelism, each with the assigned value 1. The following
+# command renders the parameters of the Job we created earlier:
+#
+# % kubectl get jobs counter -o yaml | grep -C 1 "completions"
+#  backoffLimit: 6
+#  completions: 1
+#  parallelism: 1
+#
+# The spec.backoffLimit attribute determines the number of retries a Job attempts to successfully complete the workload
+# until the executed command finishes with an exit code 0. The Job manifest needs to explicitly declare the restart
+# policy by using spec.template.spec.restartPolicy. The default restart policy of a Pod is Always, which tells the
+# Kubernetes scheduler to always restart the Pod even if the container exits with a zero exit code
