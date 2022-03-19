@@ -1,0 +1,19 @@
+# compiling the application
+
+FROM diamol/maven as builder
+
+WORkDIR /usr/src/iotd
+COPY pom.xml .
+RUN mvn -B dependency:go-offline
+
+COPY . .
+RUN mvn package
+
+# building the app
+FROM diamol/openjdk
+EXPOSE 80
+ENTRYPOINT ["java", "-jar","/app/iotd-service-0.1.0.jar"]
+
+WORKDIR /app
+COPY --from=builder /usr/src/iotd/target/iotd-service-0.1.0.jar .
+

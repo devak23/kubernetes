@@ -37,4 +37,3 @@ setInterval(() => {
   req.end();
 }, process.env.INTERVAL);
 
-console.log("Done");

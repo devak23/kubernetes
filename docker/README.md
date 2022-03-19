@@ -92,6 +92,18 @@ CMD ["node", "/web-ping/app.js"]
     Every docker instruction results in an image layer, but if the instruction does not change between builds and if the contents remain the same, Docker knows it can use the previous layer from the cache. Docker calculates whether the input has a match in the cache by generating a hash. The hash is made up of Dockerfile instruction and the contents of the files being copied. If there is no match for the hash, Docker executes the instruction and that breaks the cache. When that happens, Docker will execute all the instructions that follow, even if they haven't changed.
 
 
+There are 7 instructions in the file shown above but it can still be optimized. For example:
+- The CMD command doesn't have to be at the end of the file. It can be anywhere in the file (after FROM) and still yield the same result.
+- The ENV command can be used to set multiple enviroment variables so 3 separate ENV instructions can be combined.
 
+```
+FROM diamol/node
+CMD ["node", "/web-ping/app.js"]
+ENV TARGET="blog.sixeyed.com" \
+	METHOD="HEAD" \
+	INTERVAL="3000" \
+WORKDIR /web-ping
+COPY app.js .
+```
 
 
