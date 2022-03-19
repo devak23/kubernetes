@@ -106,4 +106,50 @@ WORKDIR /web-ping
 COPY app.js .
 ```
 
+### Chap3
+- Here we have a dockerfile with 2 stages in it. The sample application is a java springboot application. That will be built by a docker image and then the runtime will be done by another one. The code is as follows:
+```
+# Build Application
+FROM diamol/maven AS builder
+WORKDIR /usr/src/iotd
+COPY pom.xml .
+RUN mvn -B dependency:go-offline
+
+COPY . .
+RUN mvn package
+
+# Package Application 
+FROM diamol/openjdk
+WORKDIR /app
+COPY --from=builder /usr/src/iotd/target/oitd-service-0.1.0.jar .
+
+EXPOSE 80
+ENTRYPOINT ["java", "jar", "/app/iotd-service-0.1.0.jar"]
+```
+The first stage is the builder as mentioned before. HEre is what happens in the builder stage:
+
+- It uses diamol/maven image as a base. That image has openJDK Java development kit installed as well as maven build tool
+- The builder stage starts by creating a working directory in the image and copying the pom.xml into it
+- The first RUN statement executes the maven command fetching all the application dependencies. This is an expensive operation and hence it has its own step to make use of the Docker layer caching. If there are new dependencies, the XML file will change and the step will run, else cache will be used.
+- COPY . . means copy all the files and directories from the location where the docker build is running, into the working directory in the image.
+- The last step of the builder is to run the mvn package, which compiles and packages the application into a jar file.
+
+If the builder stage finishes successfully, Docker goes on to execut the final stage whcih produces the image:
+- Loads the diamol/openjdk package which is a Java 11 runtime, but none of the maven build tools are included.
+- Next it creates a working directory of /app
+- Then it copies jar file from the builder stage into the working directory
+- Next it exposes port 80 to listen to incoming requests
+- The ENTRYPOINT is an alternative to CMD instruction. It tells Docker what to do when a container is started from an image.
+
+Docker containers need to communicate with each other. Containers access each other across a virtual network using a virtual IP address that Docker allocates when it creates a network. You can create and manage networks through the command line:
+
+```
+docker network create nat
+```
+
+Now lets run the above application in a detached mode accessing the port 80 inside it and connecting the container to the nat network.
+```
+docker container run --name iotd -d -p 9000:80 --network nat iotd:v1
+```
+
 
