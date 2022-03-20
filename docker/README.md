@@ -174,7 +174,7 @@ Build and run the image using the command:
 docker images build -t access-log .
 docker container run --name accesslog -p 801:80 --network nat access-log
 ```
-The access-log application is now available @ http://localhost:801/stats. And now building the last application:
+The access-log application is now available @ http://localhost:801/stats. And now building the last application image-server
 ```
 FROM diamol/golang AS builder
 COPY main.go .
@@ -191,4 +191,14 @@ COPY --from=builder /server .
 RUN chmod +x server
 ```
 
+Build and run the docker image as follows:
+```
+docker image build -t image-gallery .
+docker container run -d -p 802:80 --network nat image-gallery
+```
+The application can now be accessed @ http://localhost:802/. Accessing the application gives the following output
+
+![alt text](https://github.com/devak23/kubernetes/docker/images/multicontainerapp.png?raw=true)
+
+In this case, the go application invokes the java webservice to fetch the image and then calls the Node application to log that the site has been accessed. 
 
