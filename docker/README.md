@@ -202,3 +202,14 @@ The application can now be accessed @ http://localhost:802/. Accessing the appli
 
 In this case, the go application invokes the java webservice to fetch the image and then calls the Node application to log that the site has been accessed. 
 
+### Chap6
+A docker container has a filesystem with a single disk drive and contents of that drive are populated with the files from the image. When you use a COPY instruction in a Dockerfile, the files and directories you copy into the image are there when you run a container from the image. Docker images are stored as multiple layers, so the container's disk is actually a virtual filesystem that Docker builds up by merging all the image layers together. You can run multiple containers from the same Docker image and they will all start with the same disc contents. The application can alter files in one container and that wont affect the files in the other or even in the image - obviously.
+
+
+The filesystem inside the container appears to be a single disk: /dev/sda1 on Linux containers and C:\ on windows containers. But that disk is a virtual filesystem that Docker builds from several sources and presents to the container as a single unit. The sources for that filesystem are the image layers that can be shared across the containers and the container's "writable layer", which is unique to each container. Since the image layers are shared, they have to be readonly and there is one writable layer per container which has the same lifecycle as the container. Image layers have their own life-cycle -- any image you pull will stay in your local cache until your remove them. But the container writeable layer is created by Docker when the container starts and later deleted by Docker when the container is removed. Stopping the container doesn't automatically remove it. So a stopped container's filesystem does still exist.
+
+
+A container can edit the existing files from the image layers. But since the image layers are readonly, so Docker does some special magic to make the editing appen. It uses a "copy-on-write" process to allow edits to a file that comes from readonly layers. When the container tries to edit a file in an image, Docker actually makes a copy of that file into the writable layer, and the edits happen there. Its all seamless for the container and the application.
+
+A Docker volume is a unit of storage - you can think of it as a USB stick for containers. Volumes exist independently of containers and they have their own life cycle, but they can be attached to containers. There are 2 ways to use volumes with containers: you can manually create volumes and attach them to a container or you can use a VOLUME instruction in the Dockerfile. That builds an image that will create a volume when you start a container.
+
