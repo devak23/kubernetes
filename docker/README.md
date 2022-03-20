@@ -106,8 +106,8 @@ WORKDIR /web-ping
 COPY app.js .
 ```
 
-### Chap3
-- Here we have a dockerfile with 2 stages in it. The sample application is a java springboot application. That will be built by a docker image and then the runtime will be done by another one. The code is as follows:
+### Chap4
+Here we have a dockerfile with 2 stages in it. The sample application is a java springboot application. That will be built by a docker image and then the runtime will be done by another one. The code is as follows:
 ```
 # Build Application
 FROM diamol/maven AS builder
@@ -149,10 +149,10 @@ docker network create nat
 
 Now lets run the above application in a detached mode accessing the port 80 inside it and connecting the container to the nat network.
 ```
-docker container run --name iotd -d -p 9000:80 --network nat iotd:v1
+docker container run --name iotd -d -p 800:80 --network nat iotd
 ```
 
-Building the access-log application is also on the same grounds
+The application is now accessible @ http://localhost:800/image. Building the access-log application is also on the same grounds
 ```
 FROM diamol/node AS builder
 WORKDIR /src
@@ -169,7 +169,26 @@ COPY --from=builder /src/node_modules/ /app/node_modules/
 COPY src/ .
 ```
 
-Build the image using the command:
+Build and run the image using the command:
 ```
 docker images build -t access-log .
+docker container run --name accesslog -p 801:80 --network nat access-log
 ```
+The access-log application is now available @ http://localhost:801/stats. And now building the last application:
+```
+FROM diamol/golang AS builder
+COPY main.go .
+RUN go build -o /server
+
+# app
+FROM diamol/base
+ENV IMAGE_API_URL="http://iotd/image" \
+	ACCESS_API_URL="http://accesslog/access-log"
+CMD ["/web/server"]
+WORKDIR web
+COPY index.html .
+COPY --from=builder /server .
+RUN chmod +x server
+```
+
+
