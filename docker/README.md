@@ -198,7 +198,7 @@ docker container run -d -p 802:80 --network nat image-gallery
 ```
 The application can now be accessed @ http://localhost:802/. Accessing the application gives the following output
 
-![alt text](https://github.com/devak23/kubernetes/docker/images/multicontainerapp.png?raw=true)
+![alt text](https://github.com/devak23/kubernetes/blob/main/docker/images/multicontainerapp.png?raw=true)
 
 In this case, the go application invokes the java webservice to fetch the image and then calls the Node application to log that the site has been accessed. 
 
