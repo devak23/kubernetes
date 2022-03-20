@@ -152,4 +152,24 @@ Now lets run the above application in a detached mode accessing the port 80 insi
 docker container run --name iotd -d -p 9000:80 --network nat iotd:v1
 ```
 
+Building the access-log application is also on the same grounds
+```
+FROM diamol/node AS builder
+WORKDIR /src
+COPY src/package.json .
+RUN npm install
 
+# app
+FROM diamol/node
+EXPOSE 80
+CMD ["node","server.js"]
+
+WORKDIR /app
+COPY --from=builder /src/node_modules/ /app/node_modules/
+COPY src/ .
+```
+
+Build the image using the command:
+```
+docker images build -t access-log .
+```
