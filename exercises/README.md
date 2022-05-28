@@ -45,4 +45,17 @@ kubectl get pod nginx -n ckad -o wide
 ```
 kubectl run busybox --image=busybox --restart=Never --rm -it --namespace=ckad -- wget -O- 172.17.0.3:80
 ```
+In this case though, set the hostNetwork parameter to true in the spec section. Only then you will be able to access the pod's end point. Ofcourse there are other ways.
 
+### Q4: Get logs of nginx container
+```
+kubectl logs nginx
+```
+
+### Q5: Add env variable DB_URL=postgresql://mydb:5432 and DB_USER_NAME=admin to the nginx container pod
+Editing a live pod is forbidden. The only way to do this is to delete the existing pod. Update the manifest adding the env entries in the containers section and re-creating the pod.
+
+### Q6: Open a shell for nginx container and inspect the contents of the current directory
+```
+kubectl exec -it -- /bin/bash
+```
