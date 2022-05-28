@@ -57,5 +57,12 @@ Editing a live pod is forbidden. The only way to do this is to delete the existi
 
 ### Q6: Open a shell for nginx container and inspect the contents of the current directory
 ```
-kubectl exec -it -- /bin/bash
+kubectl exec nginx -it -- /bin/bash
 ```
+
+### Q7: Create a yaml manifest for a pod named loop that runs a busybox image in a container. The container should run the command: for i in {1..10}; do echo "Welcome $i times"; done. Create the pod and check status
+Check the 07-loop.yml file. Status of the pod is Pending.
+```
+kubectl run loop2 --image=busybox -o yaml --dry-run=client --restart=Never > 08-loop2.yml -- /bin/sh -c 'for i in {1..10}; do echo "Welcome $i times"; done;'
+```
+
