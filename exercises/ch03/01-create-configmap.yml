@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  DB_URL: jdbc:postgresql://mydb:5432
+  DB_ADMIN: admin
+  POOL_SIZE: '50'
+  IDLE_CONNECTION_TIMEOUT: '1500'
+

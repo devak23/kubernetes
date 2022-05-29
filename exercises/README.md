@@ -29,6 +29,12 @@ kubectl get pod nginx
 kubectl run busybox --image=busybox -- ls
 kubectl logs busybox
 ```
+
+#### Q: How to you inspect an injected environment variable in a pod?
+```
+kubectl exec my-app -- env
+```
+
 ### Q1: Create a new pod named nginx running the image nginx:1.17.10. Expose container port 80. Pod should live in the namespace named ckad
 ```
 kubectl create namespace ckad
@@ -65,4 +71,5 @@ Check the 07-loop.yml file. Status of the pod is Pending.
 ```
 kubectl run loop2 --image=busybox -o yaml --dry-run=client --restart=Never > 08-loop2.yml -- /bin/sh -c 'for i in {1..10}; do echo "Welcome $i times"; done;'
 ```
+
 
